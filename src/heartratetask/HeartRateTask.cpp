@@ -106,6 +106,9 @@ void HeartRateTask::Start() {
 
   if (xTaskCreate(HeartRateTask::Process, "HRM", 400, this, 1, &taskHandle) != pdPASS) {
     APP_ERROR_HANDLER(NRF_ERROR_NO_MEM);
+  } else {
+    if (settings.GetHeartRateRebootMode())
+      controller.Enable();
   }
 }
 
@@ -152,9 +155,12 @@ void HeartRateTask::Work() {
           // If this constraint is somehow violated, the unexpected state
           // will self-resolve at the next screen on event
           newState = States::ForegroundMeasuring;
+          valueCurrentlyShown = false;
+          settings.SetHeartRateRebootMode(true);
           break;
         case Messages::Disable:
           newState = States::Disabled;
+          settings.SetHeartRateRebootMode(false);
           break;
       }
     }
@@ -188,6 +194,10 @@ void HeartRateTask::Work() {
       count++;
     }
   }
+}
+
+void HeartRateTask::SaveSettings() {
+  settings.SaveSettings();
 }
 
 void HeartRateTask::PushMessage(HeartRateTask::Messages msg) {
