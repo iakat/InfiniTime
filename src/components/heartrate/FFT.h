@@ -15,7 +15,7 @@ namespace Pinetime {
       float real;
       float imag;
     };
-    
+
     constexpr double pi = 3.1415926535897932384626433832795028841971;
 
     class FFT {
@@ -30,7 +30,8 @@ namespace Pinetime {
 
         std::array<std::complex<float>, IntegerLog2(N)> result {};
         for (std::size_t i = 0; i < IntegerLog2(N); i++) {
-          std::complex<float> value = exp_consteval(std::complex<float>(-2. * i * std::numbers::pi / static_cast<double>(1 << (i + 1))));
+          std::complex<double> tmp = std::complex<double> {0.0, -2.0} * std::numbers::pi / static_cast<double>(1 << (i + 1));
+          std::complex<float> value = exp_consteval(std::complex<float> {(float) tmp.real(), (float) tmp.imag()});
           result[i] = value;
         }
         return result;
@@ -42,7 +43,9 @@ namespace Pinetime {
 
         std::array<std::complex<float>, (N / 4) - 1> result {};
         for (std::size_t i = 0; i < ((N / 4) - 1); i++) {
-          std::complex<float> value = exp_consteval(std::complex<float>(-2. * i * std::numbers::pi * static_cast<double>(i + 1) / static_cast<double>(N)));
+          std::complex<double> tmp =
+            std::complex<double> {0.0, -2.0} * std::numbers::pi * static_cast<double>(i + 1) / static_cast<double>(N);
+          std::complex<float> value = exp_consteval(std::complex<float> {(float) tmp.real(), (float) tmp.imag()});
           result[i] = value;
         }
         return result;
